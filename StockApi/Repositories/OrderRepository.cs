@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using StockApi.Interfaces;
 using StockApi.Models;
 
@@ -12,44 +13,115 @@ namespace StockApi.Repositories
             _orders = orders.GetCollection<Order>("Orders");
         }
 
-        Task<bool> IOrderRepository.AddItemToOrder(string orderId, OrderItem item)
+        public async Task<bool> AddItemToOrder(string orderId, OrderItem item)
         {
-            throw new NotImplementedException();
+            var order = await _orders.Find(o => o.Id == orderId).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new Exception("Order not found!");
+            }
+            if (order.ItemList == null)
+            {
+                order.ItemList = new List<OrderItem>();
+            }
+
+            order.ItemList.Add(item);
+
+            var result = await _orders.UpdateOneAsync(
+                o => o.Id == orderId,
+                Builders<Order>.Update.Set
+                (o => o.ItemList, order.ItemList));
+
+;            return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 
-        Task<Order> IOrderRepository.CreateOrder(Order orderData)
+        public async Task CreateOrder(Order orderData)
         {
-            throw new NotImplementedException();
+             await _orders.InsertOneAsync(orderData);
+            
         }
 
-        Task<bool> IOrderRepository.DeleteItemFromOrder(string orderId, string itemId)
+        public async Task<bool> DeleteItemFromOrder(string orderId, string itemId)
         {
-            throw new NotImplementedException();
+            var order = await _orders.Find(o => o.Id == orderId).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new Exception("Order not found");
+            }
+
+            if (order.ItemList == null || order.ItemList.Count == 0)
+            {
+                throw new Exception("Item list is empty!");
+            }
+
+            var items = order.ItemList;
+            if (items.Count == 0)
+            {
+                throw new Exception("itemsList is empty!");
+            }
+
+            var item = order.ItemList.FirstOrDefault(i => i.Id == itemId);
+            if (item==null)
+            {
+                throw new Exception("item does not exist");
+            }
+
+            order.ItemList.Remove(item);
+
+            var update = Builders<Order>.Update.Set(o => o.ItemList, order.ItemList);
+            var result = await _orders.UpdateOneAsync(i => i.Id == itemId,update);
+            return result.IsAcknowledged && result.ModifiedCount > 0;
+
         }
 
-        Task<bool> IOrderRepository.DeleteOrder(string orderId)
+        public async Task<bool> DeleteOrder(string orderId)
         {
-            throw new NotImplementedException();
+            var result = await _orders.DeleteOneAsync(i => i.Id == orderId);
+            return result.IsAcknowledged && result.DeletedCount > 0;
         }
 
-        Task<List<Order>> IOrderRepository.GetAllOrders()
+        public async Task<List<Order>> GetAllOrders()
         {
-            throw new NotImplementedException();
+            return await _orders.Find(order => true).ToListAsync();
         }
 
-        Task<Order> IOrderRepository.GetOrderById(string orderId)
+        public async Task<Order> GetOrderById(string orderId)
         {
-            throw new NotImplementedException();
+            var order = await _orders.Find(o => o.Id == orderId).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new Exception("Order not found");
+            }
+            return order;
         }
 
-        Task<bool> IOrderRepository.UpdateOrderStatus(string orderId, Order.OrderStatusEnum newStatus)
+        public async  Task<bool> UpdateOrderStatus(string orderId, Order.OrderStatusEnum newStatus)
         {
-            throw new NotImplementedException();
+            var order = await _orders.Find(o => o.Id == orderId).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new Exception("Order not found");
+            }
+
+            order.OrderStatus = newStatus;
+
+            var update = Builders<Order>.Update.Set(o => o.OrderStatus, order.OrderStatus);
+            var result = await _orders.UpdateOneAsync(o=>o.Id==order.Id,update);
+
+            return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 
-        Task<bool> IOrderRepository.UpdateOrderTotalAmount(string orderId, decimal newTotalAmount)
+        public async  Task<bool> UpdateOrderTotalAmount(string orderId, decimal newTotalAmount)
         {
-            throw new NotImplementedException();
+            var order = await _orders.Find(o => o.Id == orderId).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new Exception("Order not found");
+            }
+            order.TotalAmount = newTotalAmount;
+            var update = Builders<Order>.Update.Set(o => o.TotalAmount, order.TotalAmount);
+            var result = await _orders.UpdateOneAsync(o => o.Id == orderId, update);
+            return result.IsAcknowledged && result.ModifiedCount > 0;
         }
     }
 }

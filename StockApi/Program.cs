@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿//using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using StockApi.configurations;
+using StockApi.Interfaces;
 using StockApi.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,11 @@ builder.Services.AddSingleton<IMongoClient>(mongoClient);
 builder.Services.AddSingleton<IMongoDatabase>(database);
 
 //Regsitering thhe repositories
-builder.Services.AddScoped<ProductRepository>();
+builder.Services.AddScoped<IProductRepository,ProductRepository>();
+builder.Services.AddScoped<IOrderRepository,OrderRepository>();
+builder.Services.AddScoped<IUserRepository,UserRepository>();
+builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+
 
 // Add OpenAPI documentation (Swagger)
 builder.Services.AddOpenApi();

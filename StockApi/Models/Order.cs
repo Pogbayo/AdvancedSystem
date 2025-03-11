@@ -15,6 +15,6 @@
         public DateTime OrderTime { get; set; }
         public decimal TotalAmount { get; set; }
         public OrderStatusEnum OrderStatus { get; set; } = OrderStatusEnum.Pending;
-        public List<OrderItem>? Items { get; set; }
+        public List<OrderItem>? ItemList { get; set; }
     }
 }
