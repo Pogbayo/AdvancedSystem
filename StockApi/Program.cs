@@ -45,7 +45,6 @@ builder.Services.AddSwaggerGen(c =>
 
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Stock API", Version = "v1" });
 
-    // This fixes the problem with AllowAnonymous not showing
     c.DocInclusionPredicate((docName, apiDesc) => true);
 
     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
