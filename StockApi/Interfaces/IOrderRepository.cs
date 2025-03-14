@@ -4,7 +4,7 @@ namespace StockApi.Interfaces
     public interface IOrderRepository
     {
         Task<List<Order>> GetAllOrders();
-        Task CreateOrder(Order orderData);
+        Task<string> CreateOrder(Order orderData);
         Task<Order> GetOrderById(string orderId);
         Task<bool> DeleteOrder(string orderId);
         Task<bool> UpdateOrderStatus(string orderId, Order.OrderStatusEnum newStatus);

@@ -27,9 +27,10 @@ namespace StockApi.Repositories
             return product;
         }
 
-        public async Task AddProduct(Product product)
+        public async Task<Product> AddProduct(Product product)
         {
             await _products.InsertOneAsync(product);
+            return product;
         }
 
         public async Task<bool> UpdateProduct(string productId, Product updateProduct)

@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using MongoDB.Driver;
 using StockApi.Interfaces;
 using StockApi.Models;
 using System.Security.Cryptography;
@@ -45,16 +46,12 @@ namespace StockApi.Repositories
         }
 
 
-        public async Task<bool> SignUp(User user)
+        public async Task<User> Register(User newUser)
         {
-            var existingUser = await _users.Find(u => user.Email == user.Email).FirstOrDefaultAsync();
-            if (existingUser!= null)
-            {
-                return false;
-            }
-            user.Password = HashPassword(user.Password);
-            await _users.InsertOneAsync(user);
-            return true;
+
+            newUser.Password = HashPassword(newUser.Password);
+            await _users.InsertOneAsync(newUser);
+            return newUser;
         }
 
 
@@ -83,6 +80,38 @@ namespace StockApi.Repositories
             var result = await _users.DeleteOneAsync(u => u.Id == userid);
             return result.IsAcknowledged && result.DeletedCount > 0;
         }
+
+
+        public async Task<User> UpdateUserRole(string id, string newRole)
+        {
+            var user = await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
+            if (user==null)
+            {
+                throw new KeyNotFoundException("User not found");
+            }
+
+            if (newRole != "Admin" && newRole != "User")
+            {
+                throw new ArgumentException("Invalid role");
+            }
+
+            if (!user.Roles.Contains(newRole))
+            {
+                user.Roles.Add(newRole);
+                await _users.ReplaceOneAsync(u => u.Id == id, user);
+            }
+            return user;
+
+        }
+
+        public async Task<User> GetUserByEmail(string userEmail)
+        {
+            return await _users.Find(u => u.Email.ToLower() == userEmail.ToLower()).FirstOrDefaultAsync();
+            //if (user == null)
+            //{
+            //    throw new KeyNotFoundException($"User with email {userEmail} not found");
+            //}
+
+        }
     }
 }
-

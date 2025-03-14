@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using EllipticCurve.Utils;
+using MongoDB.Driver;
 using StockApi.Interfaces;
 using StockApi.Models;
 namespace StockApi.Repositories
@@ -35,9 +36,22 @@ namespace StockApi.Repositories
             return cartItem;
         }
 
-        public Task<bool> UpdateQuantity(string cartItemId, int newQuantity)
+        public async Task<bool> UpdateQuantity(string cartItemId, int newQuantity)
         {
-            
+            var cartItem = await _cartItems.Find(c => c.Id == cartItemId).FirstOrDefaultAsync();
+            if (cartItem == null)
+            {
+                throw new Exception("CartItem does not exist");
+            }
+            if (cartItem.Quantity == 0)
+            {
+                cartItem.Quantity = newQuantity;
+            }
+            var result = await _cartItems.UpdateOneAsync(
+                           c => c.Id == cartItemId,
+                           Builders<CartItem>.Update.Set
+                           (c => c.Quantity, cartItem.Quantity));
+            return result.IsAcknowledged && result.ModifiedCount > 0;
         }
     }
 }

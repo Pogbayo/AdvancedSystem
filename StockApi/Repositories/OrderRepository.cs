@@ -7,11 +7,15 @@ namespace StockApi.Repositories
 {
     public class OrderRepository : IOrderRepository
     {
+
+
         private readonly IMongoCollection<Order> _orders;
         public OrderRepository(IMongoDatabase orders)
         {
             _orders = orders.GetCollection<Order>("Orders");
         }
+
+
 
         public async Task<bool> AddItemToOrder(string orderId, OrderItem item)
         {
@@ -35,11 +39,16 @@ namespace StockApi.Repositories
 ;            return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 
-        public async Task CreateOrder(Order orderData)
+
+
+        public async Task<string> CreateOrder(Order orderData)
         {
-             await _orders.InsertOneAsync(orderData);
+              await _orders.InsertOneAsync(orderData);
+            return "Order created successfully";
             
         }
+
+
 
         public async Task<bool> DeleteItemFromOrder(string orderId, string itemId)
         {
@@ -74,16 +83,23 @@ namespace StockApi.Repositories
 
         }
 
+
+
         public async Task<bool> DeleteOrder(string orderId)
         {
             var result = await _orders.DeleteOneAsync(i => i.Id == orderId);
             return result.IsAcknowledged && result.DeletedCount > 0;
         }
 
+
+
         public async Task<List<Order>> GetAllOrders()
         {
             return await _orders.Find(order => true).ToListAsync();
         }
+
+
+
 
         public async Task<Order> GetOrderById(string orderId)
         {
@@ -94,6 +110,8 @@ namespace StockApi.Repositories
             }
             return order;
         }
+
+
 
         public async  Task<bool> UpdateOrderStatus(string orderId, Order.OrderStatusEnum newStatus)
         {
@@ -110,6 +128,8 @@ namespace StockApi.Repositories
 
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
+
+
 
         public async  Task<bool> UpdateOrderTotalAmount(string orderId, decimal newTotalAmount)
         {

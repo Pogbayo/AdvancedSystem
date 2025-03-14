@@ -7,9 +7,11 @@ namespace StockApi.Interfaces
     {
         Task<List<User>> GetAllUsers();
         Task<User?> GetUserById(string userId);
+        Task<User> GetUserByEmail(string userEmail);
         Task<bool> UpdateUser(string userId, User updateUser);
         Task<bool> DeleteUser(string userid);
-        Task<bool> SignUp(User user);
+        Task<User> Register(User user);
+        Task<User> UpdateUserRole(string userId, string newRole);
         Task<User?> Login(string email, string password);
     }
 }
