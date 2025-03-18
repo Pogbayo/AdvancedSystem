@@ -8,9 +8,9 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["StockApi.csproj", "./"]
-RUN dotnet restore "./StockApi.csproj"
+RUN dotnet restore "StockApi/StockApi.csproj"
 COPY . .
-RUN dotnet publish "StockApi.csproj" -c Release -o /app/publish
+RUN dotnet publish "StockApi/StockApi.csproj" -c Release -o /app/publish
 
 # Final stage
 FROM base AS final

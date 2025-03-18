@@ -1,5 +1,5 @@
 ﻿using MongoDB.Driver;
-using StockApi.Interfaces;
+using StockApi.Domain.Interfaces;
 
 namespace StockApi.DbInit
 {
@@ -13,7 +13,7 @@ namespace StockApi.DbInit
         public async Task Initialize()
         {
             var existingCollections = await _database.ListCollectionNames().ToListAsync();
-            string[] requiredCollections = { "CartItems", "Categories", "Orders", "OrderItems", "Products", "Users" };
+            string[] requiredCollections = { "CartItems", "Categories", "Orders", "OrderItems", "Products", "Users" ,"Coupons"};
 
             foreach (var collection in requiredCollections)
             {
